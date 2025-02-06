@@ -1,6 +1,7 @@
 ## 7주차 기본 과제
 
 * Argument
+  
     --model_name_or_path "openai-community/openai-gpt" \
     --per_device_train_batch_size 8 \
     --dataset_name "wikitext" \
