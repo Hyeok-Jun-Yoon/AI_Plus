@@ -43,7 +43,6 @@ args, training_args = parser.parse_args_into_dataclasses()
 
 training_args.report_to = "wandb"  # WandB로 로그 전송
 training_args.evaluation_strategy = "steps"
-              evaluation_strategy="steps"
 training_args.eval_accumulation_steps = 1  # 평가 시 배치 크기 축적
 training_args.eval_step = 10
 training_args.logging_dir='/tmp/logs'
