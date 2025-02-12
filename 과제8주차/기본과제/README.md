@@ -22,13 +22,15 @@
 
 
 2. 결과 그래프
-## 전체 그래프
-https://wandb.ai/hyuckjun28-the-independent/Hanghae99/reports/train-loss-25-02-12-11-01-02---VmlldzoxMTMxMzA1OA
+## lora_r 3개의 값 비교 그래프
 ![image](https://github.com/user-attachments/assets/162f6627-49ec-41d4-b899-9edccfa14f7e)
+링크 : https://wandb.ai/hyuckjun28-the-independent/Hanghae99/reports/train-loss-25-02-12-11-01-02---VmlldzoxMTMxMzA1OA
 ## lora_r 값이 8,128일때
-
+![image](https://github.com/user-attachments/assets/7e356612-21fc-41ec-8103-dafd853920d4)
+링크 : https://wandb.ai/hyuckjun28-the-independent/Hanghae99/reports/train-loss-25-02-12-11-04-57---VmlldzoxMTMxMzA5OA
 ## lora_r 값이 256일때
-
+![image](https://github.com/user-attachments/assets/30435175-fc4e-4614-94e7-66a1b7c6ea0e)
+링크 : https://wandb.ai/hyuckjun28-the-independent/Hanghae99/reports/train-loss-25-02-12-11-05-48---VmlldzoxMTMxMzEwNA
 
 차원을 늘려감에 따라 메모리 점유율은 향상되었고 학습 시간도 점점 증가됨을 확인 할 수 있었습니다.
 train_loss는 소요시간이 너무 많이 걸려 전체 데이터로 하지 않고 일부만 진행해서 그런지 미세한 차이를 보였습니다.
