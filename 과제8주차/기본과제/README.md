@@ -1,6 +1,7 @@
 ## 기본과제: LoRA rank에 따른 학습 성능 비교해보기
 
 모델 : facebook/opt-350m
+
 데이터셋 : lucasmccabe-lmi/CodeAlpaca-20k (5000건만 진행/ train : 80%, eval : 20%)
 
 실행 Argument
@@ -16,12 +17,12 @@
     --evaluation_strategy "steps"  \
     --eval_steps 10  \
     --report_to "wandb"
-1. lora_r를 [8, 128, 256]로 변화시켜가며 학습 결과
+## 1. lora_r를 [8, 128, 256]로 변화시켜가며 학습 결과
 
 ![image](https://github.com/user-attachments/assets/b80fcf5a-2ed2-406d-821a-424565f24381)
 
 
-2. 결과 그래프
+## 2. 결과 그래프
 ## lora_r 3개의 값 비교 그래프
 ![image](https://github.com/user-attachments/assets/162f6627-49ec-41d4-b899-9edccfa14f7e)
 
