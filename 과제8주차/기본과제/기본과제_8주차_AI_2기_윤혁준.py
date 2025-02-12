@@ -8,16 +8,17 @@ import datasets
 import argparse
 import evaluate
 import transformers
-
 from typing import Optional
 from itertools import chain
 from dataclasses import dataclass, field
 from datasets import load_dataset
 from transformers.trainer_utils import get_last_checkpoint
+# SFTTrainer 사용을 위한 import
 from trl import SFTTrainer, SFTConfig
 
 #LoRA 사용하기 위한 import
 from peft import get_peft_config, get_peft_model, LoraConfig, TaskType
+
 from transformers import (
     AutoConfig,
     AutoModelForCausalLM,
@@ -31,13 +32,10 @@ from transformers import (
 wandb.init(project='Hanghae99')
 wandb.run.name = 'LoRA-256-yoon'
 
-
-
 @dataclass
 class Arguments:
     model_name_or_path: Optional[str] = field(default=None)  # HuggingFace hub에서 pre-trained 모델로 사용할 모델의 이름
     torch_dtype: Optional[str] = field(default=None, metadata={'choices': ['auto', 'bfloat16', 'float16', 'float32']})  # 우리 모델의 precision(data type이라고 이해하시면 됩니다)
-
     dataset_name: Optional[str] = field(default=None)  # Fine-tuning으로 사용할 huggingface hub에서의 dataset 이름
     dataset_config_name: Optional[str] = field(default=None)  # Fine-tuning으로 사용할 huggingface hub에서의 dataset configuration
     block_size: int = field(default=1024)  # Fine-tuning에 사용할 input text의 길이
@@ -51,7 +49,7 @@ training_args.eval_accumulation_steps = 1  # 평가 시 배치 크기 축적
 training_args.eval_step = 10
 training_args.logging_dir='/tmp/logs'
 
-#LoRA 인자 추가
+#LoRA 인자 추가 (lora_r을 8,128,256 일때로 변경해보면서 비교해보기)
 lora_r: int = 256
 lora_dropout: float = 0.1
 lora_alpha: int = 32
@@ -80,9 +78,6 @@ transformers.utils.logging.enable_explicit_format()
 
 logger.info(f"Training/evaluation parameters {training_args}")
 
-#corpus.json 파일 load
-#raw_datasets = load_dataset("json", data_files={"train": "/home/ubuntu/data/corpus.json", "validation": "/home/ubuntu/data/corpus.json"})
-
 # lucasmccabe-lmi/CodeAlpaca-20k 로드
 raw_datasets = load_dataset(args.dataset_config_name)
 
@@ -107,7 +102,6 @@ if "lm_head" in target_modules:  # needed for 16-bit
 
 target_modules = list(target_modules)
 
-
 peft_config = LoraConfig(
     task_type=TaskType.CAUSAL_LM,
     inference_mode=False,
@@ -117,7 +111,6 @@ peft_config = LoraConfig(
     target_modules=target_modules
 )
 model = get_peft_model(model, peft_config)
-
 
 # pad_token 설정
 tokenizer.pad_token = tokenizer.eos_token
@@ -130,17 +123,10 @@ if tokenizer.pad_token is None:
     tokenizer.pad_token = '[PAD]'
     tokenizer.pad_token_id = tokenizer.convert_tokens_to_ids('[PAD]')
 
-
 embedding_size = model.get_input_embeddings().weight.shape[0]
 if len(tokenizer) > embedding_size:
     model.resize_token_embeddings(len(tokenizer))
-'''
-def tokenize_function(examples):
-    input_ids = tokenizer(examples['Instruction'], padding="max_length", truncation=True, max_length=args.block_size)
-    labels = tokenizer(examples['Response'], padding="max_length", truncation=True, max_length=args.block_size)
-    input_ids["labels"] = labels["input_ids"]
-    return input_ids
-'''
+
 max_pos_embeddings = config.max_position_embeddings if hasattr(config, "max_position_embeddings") else 1024
 block_size = args.block_size if tokenizer.model_max_length is None else min(args.block_size, tokenizer.model_max_length)
 
@@ -179,13 +165,8 @@ with training_args.main_process_first(desc="dataset map tokenization"):
 collator = DataCollatorWithPadding(tokenizer)
 
 # formatted_dataset = dataset.map(formatting_prompts_func, batched=True)
-"""
-# Train 및 validation data 준비
-train_test_split = tokenized_datasets["train"].train_test_split(test_size=0.2)
-train_dataset = train_test_split["train"]
-validation_dataset = train_test_split["test"]
-"""
-# 400줄만 선택
+
+# 5000줄만 선택 (전체 데이터로 진행해봤는데 4시간 넘게 걸려 일부만 사용)
 subset_data = tokenized_datasets["train"].select(range(5000))
 
 # 80%는 학습용, 20%는 검증용으로 나누기
